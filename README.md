@@ -24,7 +24,6 @@ An AI-powered meal planning application designed for New Zealand households. Gen
 | Backend    | Node.js, Express, ES Modules        |
 | AI         | OpenAI API (gpt-4o-mini)            |
 | Database   | PostgreSQL 15                       |
-| Dev DB     | Docker Compose                      |
 
 ---
 
@@ -43,8 +42,6 @@ An AI-powered meal planning application designed for New Zealand households. Gen
   /services                 aiService.js, recipeService.js, mealPlannerService.js, shoppingListService.js
   /db                       index.js (pg Pool), schema.sql
   /utils                    priceTable.js (NZ price estimates)
-
-docker-compose.yml          PostgreSQL dev database
 ```
 
 ---
@@ -54,7 +51,7 @@ docker-compose.yml          PostgreSQL dev database
 ### Prerequisites
 
 - Node.js 18+
-- Docker & Docker Compose (for PostgreSQL)
+- PostgreSQL 15+ running locally
 - An OpenAI API key _(optional — app works in demo mode without one)_
 
 ### 1. Clone and install dependencies
@@ -84,14 +81,16 @@ OPENAI_API_KEY=sk-your-key-here    # Leave as-is for demo mode
 PORT=3001
 ```
 
-### 3. Start the database
+### 3. Create the database
+
+Connect to your local PostgreSQL instance and create the database, then run the schema:
 
 ```bash
-# From the project root
-docker-compose up -d
+psql -U postgres -c "CREATE DATABASE meal_planner;"
+psql -U postgres -d meal_planner -f server/db/schema.sql
 ```
 
-This starts PostgreSQL on port 5432 and automatically runs the schema.
+> The server also auto-runs the schema on startup, so the `psql` command is only needed to create the database itself.
 
 ### 4. Run the application
 
