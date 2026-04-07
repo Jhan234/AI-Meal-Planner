@@ -62,15 +62,23 @@ export async function regenerateRecipeForDay(mealPlanId, dayNumber, constraints)
 
   const existingMeals = existingResult.rows;
 
-  for (const meal of existingMeals) {
+  if (existingMeals.length > 0) {
+    const recipeIds = existingMeals.map((m) => m.id);
     const ingResult = await query(
-      `SELECT i.name_normalized AS name, i.category, ri.quantity, ri.unit
+      `SELECT ri.recipe_id, i.name_normalized AS name, i.category, ri.quantity, ri.unit
        FROM recipe_ingredients ri
        JOIN ingredients i ON ri.ingredient_id = i.id
-       WHERE ri.recipe_id = $1`,
-      [meal.id],
+       WHERE ri.recipe_id = ANY($1)`,
+      [recipeIds],
     );
-    meal.ingredients = ingResult.rows;
+    const ingByRecipe = {};
+    for (const row of ingResult.rows) {
+      if (!ingByRecipe[row.recipe_id]) ingByRecipe[row.recipe_id] = [];
+      ingByRecipe[row.recipe_id].push(row);
+    }
+    for (const meal of existingMeals) {
+      meal.ingredients = ingByRecipe[meal.id] || [];
+    }
   }
 
   const newRecipeData = await regenerateRecipe(existingMeals, dayNumber, constraints);
@@ -121,15 +129,23 @@ export async function getMealPlanById(mealPlanId) {
 
   const meals = mealsResult.rows;
 
-  for (const meal of meals) {
+  if (meals.length > 0) {
+    const recipeIds = meals.map((m) => m.id);
     const ingResult = await query(
-      `SELECT i.name_normalized AS name, i.category, ri.quantity, ri.unit
+      `SELECT ri.recipe_id, i.name_normalized AS name, i.category, ri.quantity, ri.unit
        FROM recipe_ingredients ri
        JOIN ingredients i ON ri.ingredient_id = i.id
-       WHERE ri.recipe_id = $1`,
-      [meal.id],
+       WHERE ri.recipe_id = ANY($1)`,
+      [recipeIds],
     );
-    meal.ingredients = ingResult.rows;
+    const ingByRecipe = {};
+    for (const row of ingResult.rows) {
+      if (!ingByRecipe[row.recipe_id]) ingByRecipe[row.recipe_id] = [];
+      ingByRecipe[row.recipe_id].push(row);
+    }
+    for (const meal of meals) {
+      meal.ingredients = ingByRecipe[meal.id] || [];
+    }
   }
 
   return { ...plan, meals };

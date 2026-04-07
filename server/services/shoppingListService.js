@@ -31,7 +31,7 @@ export async function generateShoppingList(mealPlanId) {
   const aggregated = {};
 
   for (const row of result.rows) {
-    const key = `${row.name}__${row.unit || ''}`;
+    const key = `${row.name}|||${row.unit || ''}`;
     const normalized = normalizeUnit(Number(row.quantity) || 1, row.unit);
 
     if (aggregated[key]) {

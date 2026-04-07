@@ -124,8 +124,9 @@ const MOCK_MEALS = [
   },
 ];
 
-const openai = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here'
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const apiKey = process.env.OPENAI_API_KEY
+const openai = apiKey && apiKey.startsWith('sk-')
+  ? new OpenAI({ apiKey })
   : null;
 
 function extractJson(text) {

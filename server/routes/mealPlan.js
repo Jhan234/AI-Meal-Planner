@@ -7,8 +7,8 @@ router.post('/generate', async (req, res) => {
   try {
     const { days, budget, availableIngredients, constraints } = req.body;
 
-    if (!days || days < 1 || days > 14) {
-      return res.status(400).json({ error: 'days must be between 1 and 14.' });
+    if (!days || days < 1 || days > 7) {
+      return res.status(400).json({ error: 'days must be between 1 and 7.' });
     }
 
     const result = await createMealPlan({
